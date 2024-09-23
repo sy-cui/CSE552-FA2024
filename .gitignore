@@ -1,2 +1,6 @@
 .DS_Store
 *.asv
+
+# image generation files
+*.ai
+*.key
