@@ -1,0 +1,7 @@
+cse552.pdf
+*.fls
+*.aux
+*.fdb_latexmk
+*.log
+*.out
+*.synctex.gz
