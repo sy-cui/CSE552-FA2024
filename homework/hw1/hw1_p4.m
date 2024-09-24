@@ -38,23 +38,23 @@ end
 F = 0.5:0.5:5.5; tol=1e-12;
 
 % Newton-Raphson iterations
-u = 0; nk = F*0.0; nu = F*0.0; nua = [];
+u = 0; nk = F*0.0; nu = F*0.0; nua = []; nra = [];
 t0 = tic();
 for i = 1:length(F)
-    [u_arr, ~, ~, k] = nr(u,F(i),@constitutive,@tangent,1e6,tol,1);
+    [u_arr, r_arr, ~, k] = nr(u,F(i),@constitutive,@tangent,1e6,tol,1);
     u = u_arr(end);
-    nk(i) = k; nu(i) = u; nua = [nua; u_arr];
+    nk(i) = k; nu(i) = u; nua = [nua; u_arr];  nra = [nra; r_arr];
 end
 t1 = toc(t0);
 disp(['Newton iterations take ' num2str(t1) ' seconds'])
 
 %Modified Newton-Raphson iterations
-u = 0.0; mk = F*0.0; mu = F*0.0; mua = [];
+u = 0.0; mk = F*0.0; mu = F*0.0; mua = []; mra = [];
 t0 = tic();
 for i = 1:length(F)
-    [u_arr, ~, ~, k] = mnr(u,F(i),@constitutive,@tangent,1e6,tol,1);
+    [u_arr, r_arr, ~, k] = mnr(u,F(i),@constitutive,@tangent,1e6,tol,1);
     u = u_arr(end);
-    mk(i) = k; mu(i) = u; mua = [mua; u_arr];
+    mk(i) = k; mu(i) = u; mua = [mua; u_arr];  mra = [mra; r_arr];
 end
 t1 = toc(t0);
 disp(['Modified Newton iterations take ' num2str(t1) ' seconds'])
@@ -89,3 +89,24 @@ pos = get(gcf, 'Position');
 set(gcf, PaperUnits='points', Position=[10 10 papersize], ...
     PaperSize=papersize);
 print -dpdf hw1_p4 -bestfit
+
+figure(2)
+subplot(2,1,1)
+semilogy(1:sum(nk)+length(nk), abs(nra), '*-r', LineWidth=1.5,MarkerSize=5)
+hold on; yline(tol, '--k', linewidth=1.5); hold off;
+xlabel('Newton-Raphson Iterations', Interpreter='latex')
+ylabel('Residual [N]', Interpreter='latex')
+set(gca, Fontsize=20, FontName='Times new roman')
+
+subplot(2,1,2)
+semilogy(1:sum(mk)+length(mk), abs(mra), '*-b', LineWidth=1.5,MarkerSize=5)
+hold on; yline(tol, '--k', linewidth=1.5); hold off;
+xlabel('Modified Newton-Raphson Iterations', Interpreter='latex')
+ylabel('Residual [N]', Interpreter='latex')
+set(gca, Fontsize=20, FontName='Times new roman')
+
+papersize = [720 540];
+pos = get(gcf, 'Position');
+set(gcf, PaperUnits='points', Position=[10 10 papersize], ...
+    PaperSize=papersize);
+print -dpdf hw1_p4_res -bestfit

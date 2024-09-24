@@ -31,23 +31,23 @@ end
 F = [2e4 4e4]; tol=1e-12;
 
 % Newton-Raphson iterations
-u = 0; nk = F*0.0; nu = F*0.0; nua = [];
+u = 0; nk = F*0.0; nu = F*0.0; nua = []; nra = [];
 t0 = tic();
 for i = 1:length(F)
-    [u_arr, ~, ~, k] = nr(u,F(i),@constitutive,@tangent,1e6,tol,1);
+    [u_arr, r_arr, ~, k] = nr(u,F(i),@constitutive,@tangent,1e6,tol,1);
     u = u_arr(end);
-    nk(i) = k; nu(i) = u; nua = [nua; u_arr];
+    nk(i) = k; nu(i) = u; nua = [nua; u_arr]; nra = [nra; r_arr];
 end
 t1 = toc(t0);
 disp(['Newton iterations take ' num2str(t1) ' seconds'])
 
 %Modified Newton-Raphson iterations
-u = 0.0; mk = F*0.0; mu = F*0.0; mua = [];
+u = 0.0; mk = F*0.0; mu = F*0.0; mua = []; mra = [];
 t0 = tic();
 for i = 1:length(F)
-    [u_arr, ~, ~, k] = mnr(u,F(i),@constitutive,@tangent,1e6,tol,1);
+    [u_arr, r_arr, ~, k] = mnr(u,F(i),@constitutive,@tangent,1e6,tol,1);
     u = u_arr(end);
-    mk(i) = k; mu(i) = u; mua = [mua; u_arr];
+    mk(i) = k; mu(i) = u; mua = [mua; u_arr]; mra = [mra; r_arr];
 end
 t1 = toc(t0);
 disp(['Modified Newton iterations take ' num2str(t1) ' seconds'])
@@ -55,7 +55,7 @@ disp(['Modified Newton iterations take ' num2str(t1) ' seconds'])
 
 %% Plotting
 figure(1)
-
+subplot(1,2,1)
 x = linspace(0, 3e-2, 128);
 plot(x, constitutive(x), '-k', LineWidth=2, DisplayName='Exact');
 hold on
@@ -68,7 +68,15 @@ xlabel('Displacement $u$ [cm]', Interpreter='latex')
 ylabel('Internal force $F^{int}(u)$ [N]', Interpreter='latex')
 set(gca, Fontsize=20, FontName='Times new roman')
 
-papersize = [540 360];
+subplot(1,2,2)
+semilogy(1:(mk(2)+1), abs(mra((mk(1)+2):end)), '*-b', ...
+    LineWidth=1.5,MarkerSize=5)
+hold on; yline(tol, '--k', linewidth=1.5); hold off;
+xlabel('Modified Newton-Raphson Iterations', Interpreter='latex')
+ylabel('Residual [N]', Interpreter='latex')
+set(gca, Fontsize=20, FontName='Times new roman')
+
+papersize = [1080 360];
 pos = get(gcf, 'Position');
 set(gcf, PaperUnits='points', Position=[10 10 papersize], ...
     PaperSize=papersize);

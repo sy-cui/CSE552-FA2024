@@ -1,3 +1,4 @@
+% Modified Newton-Raphson Iteration
 function [u_arr, r_arr, f_arr, iter] = mnr( ...
     u, ...              % Initial guess 
     F, ...              % RHS load value
@@ -7,9 +8,10 @@ function [u_arr, r_arr, f_arr, iter] = mnr( ...
     abs_tol, ...        % Absolute tolerance
     rel_tol ...         % Relative tolerance
 )
-    iter = 0; Fint = nlf(u); res = F - Fint; dim = length(u);
+    iter = 1; Fint = nlf(u); res = F - Fint; dim = length(u);
     tol = min(abs_tol, rel_tol * res);
     
+    % Buffers for the history of displacement u, residual r, and Fint
     bsize = 4;
     u_arr = zeros(4, dim); u_arr(1, :) = u;
     r_arr = zeros(4, dim); r_arr(1, :) = res;
@@ -46,5 +48,6 @@ function [u_arr, r_arr, f_arr, iter] = mnr( ...
     u_arr = u_arr(1:iter);
     r_arr = r_arr(1:iter);
     f_arr = f_arr(1:iter);
+    iter = iter - 1;
     
 end
