@@ -17,7 +17,7 @@ function [u_arr, r_arr, f_arr, iter] = mnr( ...
 
     K = ctf(u);
 
-    while res > tol && iter < max_iter
+    while abs(res) > tol && iter < max_iter
         du = K\res;
         u = u + du;
         Fint = nlf(u);

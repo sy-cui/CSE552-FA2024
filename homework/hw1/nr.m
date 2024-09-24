@@ -15,7 +15,7 @@ function [u_arr, r_arr, f_arr, iter] = nr( ...
     r_arr = zeros(4, dim); r_arr(1, :) = res;
     f_arr = zeros(4, dim); f_arr(1, :) = Fint;
 
-    while res > tol && iter < max_iter
+    while abs(res) > tol && iter < max_iter
         K = ctf(u);
         du = K\res;
         u = u + du;
