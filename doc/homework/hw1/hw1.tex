@@ -7,14 +7,21 @@
 \fancyfoot{} % clear all footer fields
 \fancyfoot[C]{\thepage}
 
+\noindent \emph{Disclaimer}. All computer programs in this assignment are implemented in \matlab~and can be found at \url{https://github.com/sy-cui/CSE552-FA2024/tree/main/homework/hw1}. 
+The codes are tested in \matlab~version 2024a. 
+However, latest \matlab~features are intentially avoided to maximize backward-compatibility, so the code should work out-of-the-box in most \matlab~versions. 
+The directory is self-containing and does not dependent on external programs or packages. 
+However, please make sure to copy \emph{the entire directory} as there are functions defined in individual files that are used by other files. 
+
+
 \section{Newton-Raphson convergence}
 Here we assume the algebraic error convergence recurrence formula 
-\begin{equation}\label{eqn:hw1_p1_1}
+\begin{equation}\label{eqn:hw1_p1_error}
     \| e_{n+1} \| \leq C \| e_n \|^k.
 \end{equation}
 where for simplicity we take equality. 
-Given an initial error of $0.9$, the iterations taken to reach $\| e_n \| \leq 0.036$ are shown in \cref{tab:hw1_p1_1}.
-For $C=1$, $k=1.1$, $37$ iterations are needed to bring the error below $0.036$, while for $C=0.5$, $k=1$ only $5$ are needed (\cref{tab:hw1_p1_1}). 
+Given an initial error of $0.9$, the iterations taken to reach $\| e_n \| \leq 0.036$ are shown in \cref{tab:hw1_p1_error}.
+For $C=1$, $k=1.1$, $37$ iterations are needed to bring the error below $0.036$, while for $C=0.5$, $k=1$ only $5$ are needed. 
 
 \begin{table}[!ht]
     \centering
@@ -50,10 +57,10 @@ For $C=1$, $k=1.1$, $37$ iterations are needed to bring the error below $0.036$,
         \hline 
     \end{tabular}
     \caption{
-        Error evolution based on \cref{eqn:hw1_p1_1}. Iterations where errors drop below $0.036$ are marked in red. 
+        Error evolution based on \cref{eqn:hw1_p1_error}. Iterations where errors drop below $0.036$ are marked in red. 
         For conciseness, iterations 6--32 are omitted for $C = 1$, $k = 1.1$.
     }
-    \label{tab:hw1_p1_1}
+    \label{tab:hw1_p1_error}
 \end{table}
 
 \section{Bar structure calculation}
@@ -199,6 +206,104 @@ A representitive flow chart is shown in \cref{fig:hw1_flow_chart}.
 We note that the external loads are applied in incremental load steps denoted in \emph{subscripts}, while the paranthesized \emph{superscripts} correspond to Newton iterations.
 For example, $u_n^{(k)}$ represent the $k$-th iteration during the $n$-th load step. 
 
+The two algorithms are largely identical, with the only difference in where the consistent tangent is computed (marked in \textcolor{Maroon}{dark red}).
+The N-R method compute the consistent tangent at every iteration, while M-N-R do this only at the start of a load step and the same tangent is used throughout the step. 
+
+Numerical implementation of both N-R and M-N-R is accomplished in \matlab. 
+The force-displacement curve, with two successive load steps $F^{\textrm{ext}}_1 = \qty{2e+4}{\newton}$ and $F^{\textrm{ext}}_2 = \qty{4e+4}{\newton}$, is shown in \cref{fig:hw1_p3_fd}.
+To achieve an absolute tolerance of $\qty{e-12}{\newton}$, N-R requires \emph{2} iterations in both the first load step and the second, while M-N-R requires \emph{2} iteartions in the first step and \emph{85} iterations in the second.
+We note that in the first load step, both approaches should yield the exact solution after exactly one iteration as plasticity has not set in at this step, but 2 iterations are observed. 
+This is due to round-off error amplified by poor conditioning, and can be (significantly) mitigated by introducing relative errors. 
+
+The history of residual for N-R is 
+\begin{align*}
+    \textrm{Load step 1}: &~~ \qty{2e+4}{\newton} &\rightarrow& ~~ \qty{-3.673e-12}{\newton}~(\textrm{round-off}) &\rightarrow ~~ 0 \\
+    \textrm{Load step 2}: &~~ \qty{2e+4}{\newton} &\rightarrow& ~~ \qty{6600}{\newton} &\rightarrow ~~ 0 \\
+\end{align*}
+and for M-N-R, the first load step is \emph{exactly the same as N-R}, as their consistent tangents are identical. 
+The second load step involves 85 iterations and the residual reduction is hence not tabulated, instead shown in \cref{fig:hw1_p3_fd} (right) which \emph{decays exponentially} with the number of M-N-R iterations. 
+
+Comparing N-R and M-N-R, it is immediately obvious that \emph{M-N-R takes significantly more iterations to converge to the same tolerance}.
+However, M-N-R also does not require the re-evaluation of the consistent tangent at every step. 
+Timing the two approaches in this problem reveal that N-R is in general $50\%$ faster to converge than M-N-R.
+However, it should be noted that this disparity is not representitive as this is only a scalar problem.
+In nonlinear finite element formulations, the cost of re-computing (and potentially factorizing) the consistent tangent in N-R may become much more taxing. On the other hand, M-N-R enjoys the benefit of acceleration techniques and opportunity to be pre-factorizated, rendering it the potentially more appealing approach. 
+\begin{figure}[!ht]
+    \centering
+    \includegraphics[width=\linewidth]{homework/hw1/hw1_p3.pdf}
+    \caption{Exact force-displacement curve and computation results using N-R (red dots) and M-N-R (blue dots) iterations are shown on the left. 
+    The plot on the right shows the residual reduction for M-N-R in the second load step. }
+    \label{fig:hw1_p3_fd}
+\end{figure}
+
+\section{Differentiable nonlinear problem}
+\subsection*{Part A}
+We now consider the nonlinear problem 
+\begin{equation}\label{eqn:hw1_p4_nlp}
+    F^{\textrm{int}}(u) = (0.19u^3 - 2u^2 + 6u + 0.1)e^{0.02u} = F^{\textrm{ext}}
+\end{equation}
+All algorithms \cref{alg:hw1_nr,alg:hw1_mnr} (and flow charts \cref{fig:hw1_flow_chart}) described in the preceding problem can still be applied here. 
+With incremental load steps from \qty{0}{\newton} to \qty{5.5}{\newton} at \qty{0.5}{\newton} intervals and an absolute tolerance of $\epsilon = \qty{e-12}{\newton}$, the required number of iterations are tabulated in \cref{tab:hw1_p4_iters}, and results are plotted in \cref{fig:hw1_p4_fd}.
+For simplicity, we do not tabulate here the numerical values of the residual of every iteration. 
+Instead, the concatenated residuals for all load steps for both N-R and M-N-R iterations are plotted in \cref{fig:hw1_p4_res}.
+
+\begin{table}[!ht]
+\centering
+\begin{tabular}{|c|c|c|c|}
+    \hline
+    Load steps $n$ & $F^{\textrm{ext}}_n$ [\si{\newton}] & N-R iterations & M-N-R iterations \\
+    \hline 
+    1 & 0.5 & 3 & 9 \\ 
+    \hline 
+    2 & 1.0 & 4 & 10 \\ 
+    \hline 
+    3 & 1.5 & 4 & 10 \\ 
+    \hline 
+    4 & 2.0 & 4 & 10 \\ 
+    \hline 
+    5 & 2.5 & 4 & 11 \\ 
+    \hline 
+    6 & 3.0 & 4 & 11 \\ 
+    \hline 
+    7 & 3.5 & 4 & 12 \\ 
+    \hline 
+    8 & 4.0 & 4 & 13 \\ 
+    \hline 
+    9 & 4.5 & 4 & 15 \\ 
+    \hline 
+    10 & 5.0 & 4 & 18 \\ 
+    \hline 
+    11 & 5.5 & 5 & 26 \\ 
+    \hline
+\end{tabular}
+\caption{Number of iterations required for N-R and M-N-R in each load step to reach the tolerance $\epsilon$. }
+\label{tab:hw1_p4_iters}
+\end{table}
+\begin{figure}[!ht]
+    \centering
+    \includegraphics[width=\linewidth]{homework/hw1/hw1_p4.pdf}
+    \caption{The left plot shows the exact force-displacement curve and computation results for \cref{eqn:hw1_p4_nlp} using N-R (red dots) and M-N-R (blue dots) iterations.
+    The number of iterations required for both of these methods to reach $\epsilon = \qty{e-12}{\newton}$ is shown in the plot on the right. 
+    }
+    \label{fig:hw1_p4_fd}
+\end{figure}
+
+\subsection*{Part B}
+The simulation data suggests that both the Newton-Raphson and modified Newton-Raphson algorithms converge exponentially, while N-R having about twice the exponent than M-N-R.
+This reflects the fact that N-R is quadratically convergent in the context of iterative solution techiniques, while M-N-R is only linearly convergent. 
+Both approaches have their benefits (and conversely drawbacks), with N-R using significantly less iterations and M-N-R not having to recompute the consistent tangent at every step. 
+For every large systems with complex sources of nonlinearity, the cost of computing the consistent tangent matrix in N-R may become crippling for the overall performance. 
+In such cases, it may be more computationally efficient to utilize some accelerated M-N-R techniques or a combination of the two methods. 
+
+\begin{figure}[!ht]
+    \centering
+    \includegraphics[width=\linewidth]{homework/hw1/hw1_p4_res.pdf}
+    \caption{Residual reduction with respect to numbers of iterations for both N-R (top) and M-N-R (bottom) iterations.  
+    }
+    \label{fig:hw1_p4_res}
+\end{figure}
+
+\clearpage
 \begin{algorithm}[!ht]
 \caption{Nonlinear solution procedure with Newton-Raphson iteration}
 \begin{algorithmic}\label{alg:hw1_nr}
@@ -282,23 +387,10 @@ For example, $u_n^{(k)}$ represent the $k$-th iteration during the $n$-th load s
     \EndFor{}
 \end{algorithmic}
 \end{algorithm}
-
+\clearpage
 \begin{figure}[!ht]
     \centering
     \includegraphics[width=\linewidth]{homework/hw1/hw1_flow_chart.pdf}
     \caption{Flow diagram of Newton-Raphson and modifed Newton-Raphson iterations. }
     \label{fig:hw1_flow_chart}
-\end{figure}
-
-The two algorithms are largely identical, with the only difference in where the consistent tangent is computed (marked in \textcolor{Maroon}{dark red}).
-The N-R method compute the consistent tangent at every iteration, while M-N-R do this only at the start of a load step and the same tangent is used throughout the step. 
-
-Numerical implementation of both N-R and M-N-R is accomplished in \matlab. 
-The force-displacement curve, with two successive load steps $F^{\textrm{ext}}_1 = \qty{2e+4}{\newton}$ and $F^{\textrm{ext}}_2 = \qty{4e+4}{\newton}$, is shown in 
-
-\begin{figure}[!ht]
-    \centering
-    \includegraphics[width=0.6\linewidth]{homework/hw1/hw1_p3.pdf}
-    \caption{Exact force-displacement curve and computation results using N-R (red dots) and M-N-R (blue dots) iterations.}
-    \label{fig:hw1_p3_fd}
 \end{figure}
