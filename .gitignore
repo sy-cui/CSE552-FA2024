@@ -4,3 +4,6 @@
 # image generation files
 *.ai
 *.key
+
+# vscode
+.vscode/
