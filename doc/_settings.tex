@@ -21,8 +21,21 @@
 % \newtheorem{pcorollary}{Corollary}[proposition]
 % \newtheorem{remark}{Remark}[subsection]
 
-% \renewcommand\qedsymbol{$\mathscr{Q.E.D}$} % For proof
+\makeatletter
+\DeclareRobustCommand\bigop[1]{%
+  \mathop{\vphantom{\sum}\mathpalette\bigop@{#1}}\slimits@
+}
+\newcommand{\bigop@}[2]{%
+  \vcenter{%
+    \sbox\z@{$#1\sum$}%
+    \hbox{\resizebox{\ifx#1\displaystyle.9\fi\dimexpr\ht\z@+\dp\z@}{!}{$\m@th#2$}}%
+  }%
+}
+\makeatother
+\newcommand{\assem}{\DOTSB\bigop{\mathrm{A}}}
 
+
+% \renewcommand\qedsymbol{$\mathscr{Q.E.D}$} % For proof
 \newcommand{\bv}[1]{\ensuremath{\bm{#1}}} % for bold font vectors
 \newcommand{\bt}[1]{\ensuremath{\bm{#1}}} % for bold font tensors
 \newcommand{\order}[1]{\ensuremath{\mathcal{O} \left( #1 \right)}}
