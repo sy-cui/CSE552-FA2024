@@ -7,6 +7,7 @@ lamb = 0.0;     % Initial load parameter
 b = 0.7;        % Arc-length control
 da = 0.2;       % Step-size
 kmax = 100;     % Maximum MNR iterations
+load_steps=35;  % Total number of solution steps
 
 %% Global initalization
 u = 0;          % Dispalcement
@@ -24,7 +25,6 @@ K = K0;
 Dl_init = da;
 
 %% Modified-Newton-Raphson iterations
-load_steps = 35;
 data = cell(load_steps,1); % Store data as cell list of structs
 
 for i=1:load_steps
