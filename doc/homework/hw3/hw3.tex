@@ -33,7 +33,7 @@ The infinitesimal strain after the rigid-body motion reads
     \bv{\epsilon} \equiv \frac{1}{2}(\bt{Q} + \bt{Q}^T - 2\bt{I})
 \end{equation}
 which is \emph{in general non-zero} unless $\bt{Q} = \bt{I}$ which implies pure translation.
-Therefore, the infinitesimal strain tensor $\bv{\epsilon}$ does not remain zero after rigid-body motion and is hence not an appropriate strain measure for geometric nonlinearities. Q.E.D.
+Therefore, the infinitesimal strain tensor $\bv{\epsilon}$ does not remain zero after rigid-body motion and is hence not an appropriate strain measure for geometric nonlinearities. 
 
 \section{Derive the material time derivative for a scalar and a tensor field}
 \begin{enumerate}[(a)]
@@ -342,3 +342,44 @@ This can potentially be improved bia the line-search technique.
     \caption{Zoomed-in version of \cref{fig:hw3_b0pt7_soln}.}
     \label{fig:hw3_b0pt7_close}
 \end{figure}
+
+\section{Traction force term transformation}
+
+First, recall the definition for the boundary traction, first Piola-Kirchoff stress (PK1), and Nanson's formula:
+\begin{equation}
+    \bv{h} = \bt{\sigma} \cdot \bv{n}\Big|_{a_h} ~~ \Leftrightarrow ~~ h_i = \sigma_{ij} n_j ~~ \textrm{on boundary}
+\end{equation}
+\begin{equation}
+    \bt{P} := J\bt{\sigma}\bt{F}^{-T} ~~ \Leftrightarrow ~~ P_{iI} = J \sigma_{ij} \frac{\partial X_I}{\partial x_j}
+\end{equation}
+\begin{equation}
+    \bv{n}da = J\bt{F}^{-T}\bv{N}dA ~~ \Leftrightarrow ~~ n_i da = J\frac{\partial X_I}{\partial x_i} N_I dA
+\end{equation}
+The boundary traction term is then 
+\begin{equation}
+\begin{aligned}
+    \int_{a_h} w_i h_i da &= \int_{a_h} w_i \sigma_{ij} \left(n_j da\right) \\
+    &= \int_{A_\mathcal{H}} W_i \left[\sigma_{ij} J\frac{\partial X_I}{\partial x_j}\right] N_I dA \\
+    &= \int_{A_\mathcal{H}} W_i \left(P_{iI} N_I\right) dA \\
+    &= \int_{A_\mathcal{H}} W_i H_i dA \\
+\end{aligned}
+\end{equation}
+where we have defined the traction boundary condition in the reference configuration $H_i = P_{iI} N_I = \bt{P} \cdot \bt{N}$. 
+
+\section{Aside: proof of Nanson's formula}
+Suppose an infinitesimal volume shaped as a parallelepiped, with reference base area $dA$ whose associated unit normal vector is $\bv{N}$, and a out-of-plane side vector $d\bv{L}$. 
+Their counterparts in the current configuration are $da$, $\bv{n}$, and $d\bv{l}$, respectively. 
+By definition, the same material fiber $d\bv{L}$ and $d\bv{l}$ are related by the deformation gradient $d\bv{l} = \bt{F} d\bv{L}$. 
+Hence, the volume of this infinitesimal domain can be expressed in both configurations as 
+\begin{equation}
+    V = J d\bv{L} \cdot \bv{N}dA = d\bv{l} \cdot \bv{n} da = (\bt{F}d\bv{L}) \cdot \bv{n}da = d\bv{L} \cdot (\bt{F}^T \bt{n}) da
+\end{equation}
+which suggests that
+\begin{equation}
+    d\bv{L} \cdot (J\bv{N}dA - \bt{F}^T \bv{n} da) = 0
+\end{equation}
+holds true for any non-zero side vector $d\bv{L}$, leading to the parenthesized term being identically zero. 
+Hence, Nanson's formula emerges:
+\begin{equation}
+    \bv{n}da = J \bt{F}^{-T} \bv{N}dA.
+\end{equation}
