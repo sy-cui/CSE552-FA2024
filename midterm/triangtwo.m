@@ -122,5 +122,5 @@ NodeLoad = [3 2 -P
 young = 10e5;
 pois = .25;
 thick = 1;
-PSPS = 'n';
+PSPS = 's';
 MateT = [young pois thick];
