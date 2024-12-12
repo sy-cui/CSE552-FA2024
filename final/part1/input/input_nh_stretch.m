@@ -28,7 +28,7 @@ NodeLoad = [3 2 0
             4 2 0];
 
 % Mesh Material Properties
-young = 1e8;    % [MPa]
+young = 1e8;    % [Pa]
 pois = .25;
 lame1 = pois * young / (1 - 2*pois) / (1 + pois);
 lame2 = young / 2 / (1 + pois);

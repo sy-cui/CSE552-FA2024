@@ -10,7 +10,7 @@ TRACK_QUAD_IDX = 4; % Which quadrature point to track for stress and strain
 
 %% Run load steps 
 steps = 100;
-P = linspace(0, 1e6, steps);
+P = linspace(0, 1e7, steps);
 
 sigma_11 = zeros(steps,1);
 sigma_22 = zeros(steps,1);
