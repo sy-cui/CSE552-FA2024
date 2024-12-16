@@ -46,7 +46,7 @@ max_iters = 50;
 framework = 'UL';
 
 % HHT time stepping
-alpha = 0;
+alpha = -1/3;
 beta  = 0.25*(1-alpha)^2;
 gamma = 0.5*(1-2*alpha);
 dt = 1e-3;

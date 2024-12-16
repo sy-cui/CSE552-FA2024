@@ -92,7 +92,7 @@ plot(ts,sigma_22,'-r','LineWidth',1,'DisplayName','$\sigma_{22}$')
 plot(ts,sigma_12,'-b','LineWidth',1,'DisplayName','$\sigma_{12}$')
 hold off
 xlabel('Time [s]', 'Interpreter', 'latex')
-ylabel('Displacement [m]', 'Interpreter', 'latex')
+ylabel('Stress [Pa]', 'Interpreter', 'latex')
 legend('Interpreter','latex','Location','northeast')
 set(gca, 'Fontsize', 20, 'Fontname', 'Times new roman')
 title(sprintf('$\\alpha = %.2f$', alpha), ...
